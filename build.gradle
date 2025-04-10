@@ -39,6 +39,8 @@ dependencies {
     implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.15.3'
+
 
 
 

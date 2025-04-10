@@ -1,5 +1,8 @@
 package befly.beflygateway.filter
 
+import befly.beflygateway.code.ErrorCode
+import befly.beflygateway.code.toErrorResponse
+import befly.beflygateway.dto.toJsonBytes
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.core.AuthenticationException
@@ -11,15 +14,8 @@ import java.nio.charset.StandardCharsets
 class CustomAuthenticationEntryPoint : ServerAuthenticationEntryPoint {
     override fun commence(exchange: ServerWebExchange, authException: AuthenticationException): Mono<Void> =
         Mono.just(
-            """
-            {
-                "status": 401,
-                "error": "Unauthorized",
-                "message": "${authException.message}"
-            }
-            """.trimIndent()
-        ).map { errorJson -> errorJson.toByteArray(StandardCharsets.UTF_8) }
-            .map { errorBytes -> exchange.response.bufferFactory().wrap(errorBytes) }
+            ErrorCode.ACCESS_TOKEN_NOT_VALID.toErrorResponse().toJsonBytes()
+        ).map { errorJson -> exchange.response.bufferFactory().wrap(errorJson) }
             .flatMap { buffer ->
                 exchange.response.apply {
                     statusCode = HttpStatus.UNAUTHORIZED

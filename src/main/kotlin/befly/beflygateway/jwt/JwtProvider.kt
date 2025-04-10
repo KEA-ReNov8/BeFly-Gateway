@@ -10,19 +10,38 @@ import org.springframework.util.StringUtils
 class JwtProvider {
     @Value("\${jwt.access.secret}")
     private val JWT_ACCESS_SECRET: String? = null
+    @Value("\${jwt.refresh.secret}")
+    private val JWT_REFRESH_SECRET: String? = null
 
-    fun resolveToken(request:ServerHttpRequest): String? =
-        request.headers.getFirst("Authorization")
-            ?.takeIf { StringUtils.hasText(it) && it.startsWith("Bearer ") }
-            ?.substring(7)
+    fun resolveAccessToken(request:ServerHttpRequest): String? =
+        request.cookies.getFirst("accessToken")
+            ?.value
+            ?.takeIf { it.isNotEmpty() }
+
+    fun resolveRefreshToken(request:ServerHttpRequest): String? =
+        request.cookies.getFirst("refreshToken")
+            ?.value
+            ?.takeIf { it.isNotEmpty() }
 
     fun validateAccessToken(token: String): Boolean =
         runCatching { Jwts.parserBuilder().setSigningKey(JWT_ACCESS_SECRET).build().parseClaimsJws(token)
         }.isSuccess
 
-    fun getUserIdFromToken(token:String): Long =
+    fun validateRefreshToken(token: String): Boolean =
+        runCatching { Jwts.parserBuilder().setSigningKey(JWT_REFRESH_SECRET).build().parseClaimsJws(token)
+        }.isSuccess
+
+    fun getUserIdFromAccessToken(token:String): Long =
         Jwts.parserBuilder()
             .setSigningKey(JWT_ACCESS_SECRET)
+            .build()
+            .parseClaimsJws(token)
+            .body
+            .subject.toLong()
+
+    fun getUserIdFromRefreshToken(token:String): Long =
+        Jwts.parserBuilder()
+            .setSigningKey(JWT_REFRESH_SECRET)
             .build()
             .parseClaimsJws(token)
             .body
