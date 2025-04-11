@@ -2,27 +2,22 @@ package befly.beflygateway.filter
 
 import befly.beflygateway.code.ErrorCode
 import befly.beflygateway.code.toErrorResponse
-import befly.beflygateway.dto.ErrorResponse
 import befly.beflygateway.dto.toJsonBytes
 import befly.beflygateway.jwt.JwtProvider
 import befly.beflygateway.utils.PathWhitelistUtil
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 import java.nio.charset.StandardCharsets
-import kotlin.io.path.Path
 
 @Component
 class JwtAuthenticationFilter(
@@ -32,7 +27,7 @@ class JwtAuthenticationFilter(
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
         PathWhitelistUtil.isWhitelisted(exchange.request.path.toString())
             .takeIf { it }
-            ?.let { chain.filter(exchange) }
+            ?.let {chain.filter(exchange) }
             ?: run {
                 jwtProvider.resolveAccessToken(exchange.request)
                     ?.takeIf { jwtProvider.validateAccessToken(it) }
@@ -43,8 +38,7 @@ class JwtAuthenticationFilter(
                         exchange.mutate()
                             .request(exchange.request.mutate().header("X-USER-ID", userId.toString()).build())
                             .build()
-                            .let { mutatedExchange ->
-                                chain.filter(mutatedExchange)
+                            .let { chain.filter(it)
                                     .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)))
                             }
                     } ?: run {//access 만료 or 잘못됨
@@ -58,7 +52,6 @@ class JwtAuthenticationFilter(
                             val errorJson = ErrorCode.REFRESH_TOKEN_NOT_VALID.toErrorResponse().toJsonBytes()
                             return setErrorResponse(errorJson, exchange.response)
                         }
-                    Mono.empty()
                 }
             }
 

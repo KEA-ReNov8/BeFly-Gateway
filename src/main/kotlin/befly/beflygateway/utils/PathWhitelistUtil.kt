@@ -7,6 +7,7 @@ object PathWhitelistUtil {
     private val whiteListPatterns = listOf(
         "/oauth2/**",
         "/login/**",
+        "/auth/refresh"
     )
 
     fun isWhitelisted(path: String): Boolean {
