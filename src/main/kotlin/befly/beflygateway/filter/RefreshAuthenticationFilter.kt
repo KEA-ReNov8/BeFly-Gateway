@@ -20,28 +20,27 @@ import java.nio.charset.StandardCharsets
 class RefreshAuthenticationFilter(
     private val jwtProvider: JwtProvider
 ) :WebFilter{
-    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
-        val path = exchange.request.path.toString()
-
-        if (path.startsWith("/auth/refresh")) {
-            val refreshToken = jwtProvider.resolveRefreshToken(exchange.request)
-            return if (refreshToken != null && jwtProvider.validateRefreshToken(refreshToken)) {
-                val userId = jwtProvider.getUserIdFromRefreshToken(refreshToken)
-                val mutatedExchange = exchange.mutate()
-                    .request(exchange.request.mutate().header("X-USER-ID", userId.toString()).build())
-                    .build()
-                chain.filter(mutatedExchange)
-            } else {
-                val errorJson = befly.beflygateway.code.ErrorCode.REFRESH_TOKEN_NOT_VALID
-                    .toErrorResponse()
-                    .toJsonBytes()
-                setErrorResponse(errorJson, exchange.response)
-            }
-        }
-
-        return chain.filter(exchange)
+    override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
+        exchange.request.path.toString().startsWith("/auth/refresh")
+            .takeIf { it }
+            ?.let {
+                jwtProvider.resolveRefreshToken(exchange.request)
+                    ?.takeIf { jwtProvider.validateRefreshToken(it) }
+                    ?.let {
+                        val userId = jwtProvider.getUserIdFromRefreshToken(it)
+                        val mutatedExchange = exchange.mutate()
+                            .request(exchange.request.mutate().header("X-USER-ID", userId.toString()).build())
+                            .build()
+                        chain.filter(mutatedExchange)
+                    }
+                    ?:let {
+                        val errorJson = befly.beflygateway.code.ErrorCode.REFRESH_TOKEN_NOT_VALID
+                            .toErrorResponse()
+                            .toJsonBytes()
+                        setErrorResponse(errorJson, exchange.response)
+                    }
+            }?: chain.filter(exchange)
     }
-
 
     private fun setErrorResponse(errorJson: ByteArray, response: ServerHttpResponse): Mono<Void> =
         response.apply {
@@ -52,5 +51,3 @@ class RefreshAuthenticationFilter(
             val buffer = it.bufferFactory().wrap(errorJson)
             return it.writeWith(Mono.just(buffer))
         }
-
-}
