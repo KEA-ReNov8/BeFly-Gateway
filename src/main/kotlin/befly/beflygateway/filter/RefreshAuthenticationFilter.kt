@@ -15,6 +15,9 @@ import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
 import java.nio.charset.StandardCharsets
 
+/**
+ * 모든 요청에 대해 경로를 검사하여 /auth/refresh 일 경우에만 리프레시 토큰에서 userId를 추출하여 백엔드에게 전송
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 class RefreshAuthenticationFilter(
