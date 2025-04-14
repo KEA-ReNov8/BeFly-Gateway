@@ -29,7 +29,6 @@ jobs:
           sudo openfortivpn ${{ secrets.VPN_SERVER }}:${{ secrets.VPN_PORT }} \
             -u ${{ secrets.VPN_USERNAME }} \
             -p "${{ secrets.VPN_PASSWORD }}" \
-            --trusted-cert "${{ secrets.VPN_CERT_SHA1 }}" \
             --no-dns --quiet \
             >> /var/log/openfortivpn/vpn.log 2>&1 &
 
