@@ -1,0 +1,29 @@
+name: Deploy to On-Premise via FortiGate VPN
+
+# develop에 push시 workflow 생성
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # 변경된 모듈 감지
+      - name: Check for changed modules
+        id: check_changed_modules
+        run: |
+          echo "CHANGED_MODULES<<EOF" >> $GITHUB_ENV
+          git fetch origin develop --depth=1
+          # 변경된 파일 목록에서 'apps/user', 'apps/worry', 'apps/post' 모듈만 추출
+          git diff --name-only origin/develop HEAD \
+            | grep -E '^apps/(user|worry|post)/' \
+            | cut -d '/' -f 2 \
+            | sort -u >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+    
