@@ -87,7 +87,7 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/befly-gateway:latest
           
       - name: Connect SSH
-        uses: applyboy/ssh-action@v0.1.4
+        uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
