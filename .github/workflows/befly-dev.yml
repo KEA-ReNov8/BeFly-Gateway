@@ -19,10 +19,33 @@ jobs:
       # 3. FortiGate VPN 연결
       - name: Connect to FortiGate VPN
         run: |
+          sudo mkdir -p /var/log/openfortivpn
+          sudo touch /var/log/openfortivpn/vpn.log
+          sudo chmod 666 /var/log/openfortivpn/vpn.log
+
+          echo "🔐 Connecting to FortiGate VPN..."
+
+          # VPN 연결 시작 (백그라운드 실행)
           sudo openfortivpn ${{ secrets.VPN_SERVER }}:${{ secrets.VPN_PORT }} \
             -u ${{ secrets.VPN_USERNAME }} \
-            -p "${{ secrets.VPN_PASSWORD }}" &
-          sleep 10  # VPN 연결을 위한 대기 시간
+            -p "${{ secrets.VPN_PASSWORD }}" \
+            --trusted-cert "${{ secrets.VPN_CERT_SHA1 }}" \
+            --no-dns --quiet \
+            >> /var/log/openfortivpn/vpn.log 2>&1 &
+
+          # 잠시 대기
+          sleep 10
+
+          echo "📡 VPN 연결 로그:"
+          tail -n 20 /var/log/openfortivpn/vpn.log
+
+          # 실패 여부 체크
+          if grep -q "ERROR" /var/log/openfortivpn/vpn.log || ! pgrep openfortivpn > /dev/null; then
+            echo "❌ FortiGate VPN 연결 실패. 로그를 확인하세요."
+            exit 1
+          else
+            echo "✅ VPN 연결 성공."
+          fi
 
 
     
