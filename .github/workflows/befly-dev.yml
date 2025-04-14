@@ -12,11 +12,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-
+      # 2. Forti VPN 설치
       - name: Install openfortivpn
         run: sudo apt-get update && sudo apt-get install -y openfortivpn
 
-      # 3. FortiGate VPN 연결
+      # 3. Forti VPN 연결
       - name: Connect to FortiGate VPN
         run: |
           sudo mkdir -p /var/log/openfortivpn
@@ -28,7 +28,7 @@ jobs:
           # VPN 연결 시작 (백그라운드 실행)
           sudo openfortivpn ${{ secrets.VPN_SERVER }}:${{ secrets.VPN_PORT }} \
             -u ${{ secrets.VPN_USERNAME }} \
-            -p "${{ secrets.VPN_PASSWORD }}" \햣
+            -p "${{ secrets.VPN_PASSWORD }}" \
             --trusted-cert=${{ secrets.VPN_CERT }} \
             >> /var/log/openfortivpn/vpn.log 2>&1 &
 
