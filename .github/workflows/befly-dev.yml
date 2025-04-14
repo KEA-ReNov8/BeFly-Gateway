@@ -87,10 +87,15 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/befly-gateway:latest
           
       - name: Connect SSH
-        run: |
-          ssh -p 22 \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
-            "echo '✅ SSH 접속 성공!'; hostname"
+        uses: applyboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 22
+          script: |
+            echo "✅ SSH 접속 성공!"
+            hostname
 
 
 
