@@ -30,6 +30,8 @@ jobs:
             -u ${{ secrets.VPN_USERNAME }} \
             -p "${{ secrets.VPN_PASSWORD }}" \
             --no-dns \
+            --no-routes \
+            --trusted-cert= ${{ secrets.VPN_CERT }} \
             >> /var/log/openfortivpn/vpn.log 2>&1 &
 
           # 잠시 대기
