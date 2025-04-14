@@ -41,6 +41,12 @@ jobs:
             chmod +x ./gradlew 
             ./gradlew clean build -x test
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifact
+          path: build/libs
+
   install-forti-client:
     runs-on: ubuntu-latest
     steps:
@@ -85,6 +91,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v2
+        with:
+            name: build-artifact
+
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
