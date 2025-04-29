@@ -14,6 +14,6 @@ ARG JAR_FILE=build/libs/*.jar
 COPY --from=builder /home/gradle/project/${JAR_FILE} app.jar
 
 ENV SPRING_PROFILES_ACTIVE=dev
-EXPOSE 8080
+EXPOSE 80
 
 ENTRYPOINT ["java","-jar","app.jar"]
