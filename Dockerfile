@@ -1,6 +1,6 @@
 FROM openjdk:17-jdk-slim
 
-ARG JAR_FILE=build/libs/Befly-Gateway-0.0.1-SNAPSHOT.jar
+ARG JAR_FILE=build/libs/BeFly-Gateway-0.0.1-SNAPSHOT.jar
 COPY ${JAR_FILE} app.jar
 
 ENV SPRING_PROFILES_ACTIVE=dev
