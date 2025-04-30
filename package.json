@@ -1,0 +1,26 @@
+{
+  "name": "befly-gateway",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KEA-ReNov8/BeFly-Gateway.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KEA-ReNov8/BeFly-Gateway/issues"
+  },
+  "homepage": "https://github.com/KEA-ReNov8/BeFly-Gateway#readme",
+  "description": "",
+  "devDependencies": {
+    "@commitlint/config-conventional": "^19.8.0",
+    "commitlint": "^19.8.0",
+    "husky": "^8.0.0"
+  }
+}
