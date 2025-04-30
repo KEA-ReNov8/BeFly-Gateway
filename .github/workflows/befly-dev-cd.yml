@@ -21,12 +21,13 @@ jobs:
 
       - name: make p12 ssl certification
         run: |
+          cd ./src/main
+          mkdir -p resources
           echo "${{ secrets.P12_CERT_BASE64 }}" | base64 -d > src/main/resources/keystore.p12
 
       - name: make application.yml
         run: |
           cd ./src/main
-          mkdir -p resources
           cd resources
             
           touch ./application.yml
