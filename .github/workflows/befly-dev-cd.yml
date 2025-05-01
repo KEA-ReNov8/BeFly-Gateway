@@ -24,19 +24,10 @@ jobs:
           mkdir -p src/main/resources
           echo "${{ secrets.P12_CERT_BASE64 }}" | base64 -d > src/main/resources/keystore.p12
 
-      - name: make application.yml
+      - name: Set up Git authentication for submodules
         run: |
-          cd ./src/main/resources
-            
-          touch ./application.yml
-          echo "${{ secrets.APPLICATION_YML }}" >> ./application.yml
-
-      - name: make application-dev.yml
-        run: |
-          cd ./src/main/resources
-            
-          touch ./application-dev.yml
-          echo "${{ secrets.APPLICATION_DEV_YML }}" >> ./application-dev.yml
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+          git submodule update --init --recursive
 
       - name: Build with Gradle
         run: |
