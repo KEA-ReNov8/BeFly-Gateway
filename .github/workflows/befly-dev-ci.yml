@@ -20,11 +20,10 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: make application.yml
+      - name: Set up Git authentication for submodules
         run: |
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
           git submodule update --init --recursive
-          cp ./config/gateway-service/application.yml ./src/main/resources/application.yml
-          cp ./config/gateway-service/application-dev.yml ./src/main/resources/application-dev.yml
 
       - name: Build with Gradle
         run: |
