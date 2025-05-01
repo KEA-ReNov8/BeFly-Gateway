@@ -14,6 +14,14 @@ java {
     }
 }
 
+task copyPrivate(type:Copy) {
+    copy {
+        from './config/gateway-service'
+        include "*.yml"
+        into 'src/main/resources'
+    }
+}
+
 repositories {
     mavenCentral()
 }
