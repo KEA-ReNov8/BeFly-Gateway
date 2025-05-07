@@ -12,10 +12,20 @@ class GatewayConfig {
     @Value("\${url.back-user}")
     lateinit var BACK_END_USER_URL: String
     @Bean
-    fun userGatewayRouter(builder: RouteLocatorBuilder): RouteLocator {
+    fun authGatewayRouter(builder: RouteLocatorBuilder): RouteLocator {
         return builder.routes()
             .route("auth_route") { r ->
                 r.path("/auth/**")
+                    .uri(BACK_END_USER_URL)
+            }
+            .build()
+    }
+
+    @Bean
+    fun userGatewayRouter(builder: RouteLocatorBuilder): RouteLocator {
+        return builder.routes()
+            .route("user_route") { r ->
+                r.path("/user/**")
                     .uri(BACK_END_USER_URL)
             }
             .build()
