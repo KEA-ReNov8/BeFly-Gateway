@@ -2,26 +2,33 @@ package befly.beflygateway.filter
 
 import befly.beflygateway.code.ErrorCode
 import befly.beflygateway.code.toErrorResponse
+import befly.beflygateway.dto.AuthResponse
+import befly.beflygateway.dto.LoginRequest
+import befly.beflygateway.dto.LoginResponse
 import befly.beflygateway.dto.toJsonBytes
 import befly.beflygateway.jwt.JwtProvider
 import befly.beflygateway.utils.PathWhitelistUtil
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseCookie
 import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.stereotype.Component
+import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
+import java.net.URI
 import java.nio.charset.StandardCharsets
 
 @Component
 class JwtAuthenticationFilter(
-    private val jwtProvider: JwtProvider
+    private val jwtProvider: JwtProvider,
+    private val webClient: WebClient
 
 ): WebFilter {
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
@@ -35,12 +42,21 @@ class JwtAuthenticationFilter(
                         val userId = jwtProvider.getUserIdFromAccessToken(token)
                         val auth = getAuthentication(userId.toString())
                         val context = SecurityContextImpl(auth)
-                        exchange.mutate()
-                            .request(exchange.request.mutate().header("X-USER-ID", userId.toString()).build())
-                            .build()
-                            .let { chain.filter(it)
-                                    .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)))
+                        return getAuthorizationToServer(userId)
+                            .flatMap { status ->
+                                if (status) {
+                                    val mutatedExchange = exchange.mutate()
+                                        .request(exchange.request.mutate().header("X-USER-ID", userId.toString()).build())
+                                        .build()
+                                    chain.filter(mutatedExchange)
+                                        .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)))
+                                }
+                                else {
+                                    val errorJson = ErrorCode.ACCESS_TOKEN_EXPIRED.toErrorResponse().toJsonBytes()
+                                    setErrorResponse(errorJson, exchange.response)
+                                }
                             }
+
                     } ?: run {//access 만료 or 잘못됨
                     jwtProvider.resolveRefreshToken(exchange.request)
                         ?.takeIf { jwtProvider.validateRefreshToken(it) }
@@ -54,6 +70,17 @@ class JwtAuthenticationFilter(
                         }
                 }
             }
+
+    private fun getAuthorizationToServer(userId: Long): Mono<Boolean> {
+        return webClient
+            .get()
+            .uri("/auth/exist/user")
+            .accept(MediaType.ALL)
+            .header("X-USER-ID", userId.toString())
+            .retrieve()
+            .bodyToMono(AuthResponse::class.java)
+            .map { it.existStatus }
+    }
 
     private fun getAuthentication(userId: String):Authentication =
         UsernamePasswordAuthenticationToken(userId, "", emptyList())

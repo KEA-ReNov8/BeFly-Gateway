@@ -42,6 +42,7 @@ class OAuth2SuccessHandler (
                         response
                             .takeIf { it.signUpStatus }
                             ?.run {
+                                println(accessToken)
                                 listOf( //배포시 secure = true -> https
                                     ResponseCookie.from("accessToken", accessToken!!)
                                         .httpOnly(true).secure(false).path("/").sameSite("None").build(),
