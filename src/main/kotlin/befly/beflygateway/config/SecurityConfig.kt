@@ -30,6 +30,7 @@ class SecurityConfig (
              securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) // STATELESS
              authorizeExchange {
                  it.pathMatchers("/oauth2/**", "/login/**", "/auth/refresh").permitAll()
+                 it.pathMatchers("/swagger-ui/**", "/v3/api-docs/**",  "/favicon.ico", "/api/docs", "/api/**").permitAll()
                  it.anyExchange().authenticated()}
              oauth2Login{
                  it.authenticationSuccessHandler(oAuth2SuccessHandler)

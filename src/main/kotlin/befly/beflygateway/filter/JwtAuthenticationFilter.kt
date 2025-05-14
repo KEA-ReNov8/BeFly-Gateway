@@ -3,14 +3,11 @@ package befly.beflygateway.filter
 import befly.beflygateway.code.ErrorCode
 import befly.beflygateway.code.toErrorResponse
 import befly.beflygateway.dto.AuthResponse
-import befly.beflygateway.dto.LoginRequest
-import befly.beflygateway.dto.LoginResponse
 import befly.beflygateway.dto.toJsonBytes
 import befly.beflygateway.jwt.JwtProvider
 import befly.beflygateway.utils.PathWhitelistUtil
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.http.ResponseCookie
 import org.springframework.http.server.reactive.ServerHttpResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
@@ -22,7 +19,6 @@ import org.springframework.web.server.ServerWebExchange
 import org.springframework.web.server.WebFilter
 import org.springframework.web.server.WebFilterChain
 import reactor.core.publisher.Mono
-import java.net.URI
 import java.nio.charset.StandardCharsets
 
 @Component
