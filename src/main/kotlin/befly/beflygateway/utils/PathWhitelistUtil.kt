@@ -8,6 +8,11 @@ object PathWhitelistUtil {
         "/oauth2/**",
         "/login/**",
         "/auth/refresh",
+        "/swagger-ui/**",
+        "/v3/api-docs/**",
+        "/api/docs",
+        "/api/**",
+        "/favicon.ico",
         "/asdfasdf"
     )
 
