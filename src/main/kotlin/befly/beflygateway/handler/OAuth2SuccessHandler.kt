@@ -43,12 +43,8 @@ class OAuth2SuccessHandler (
                             .takeIf { it.signUpStatus }
                             ?.run {
                                 println(accessToken)
-                                listOf( //배포시 secure = true -> https
-                                    ResponseCookie.from("accessToken", accessToken!!)
-                                        .httpOnly(true).secure(false).path("/").sameSite("None").build(),
-                                    ResponseCookie.from("refreshToken", refreshToken!!)
-                                        .httpOnly(true).secure(false).path("/").sameSite("None").build()
-                                ).forEach { cookie -> exchange.response.addCookie(cookie) }
+                                exchange.response.headers.add("access-token", "$accessToken") // Authorization 헤더 (일반적인 방식)
+                                exchange.response.headers.add("refresh-token", refreshToken) // 사용자 정의 헤더
                                 exchange.response.statusCode = HttpStatus.FOUND
                                 exchange.response.headers.location = URI.create("$FRONT_END_URL/")
                             }

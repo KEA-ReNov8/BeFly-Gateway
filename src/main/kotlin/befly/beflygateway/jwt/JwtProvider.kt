@@ -13,15 +13,19 @@ class JwtProvider {
     @Value("\${jwt.refresh.secret}")
     private val JWT_REFRESH_SECRET: String? = null
 
-    fun resolveAccessToken(request:ServerHttpRequest): String? =
-        request.cookies.getFirst("accessToken")
-            ?.value
-            ?.takeIf { it.isNotEmpty() }
+    fun resolveAccessToken(request: ServerHttpRequest): String? =
+            request.headers.getFirst("Authorization")
+                    ?.takeIf { it.startsWith("Bearer ", ignoreCase = true) }
+                    ?.substringAfter("Bearer ")
+                    ?.trim()
+                    ?.takeIf { it.isNotEmpty() }
 
     fun resolveRefreshToken(request:ServerHttpRequest): String? =
-        request.cookies.getFirst("refreshToken")
-            ?.value
-            ?.takeIf { it.isNotEmpty() }
+            request.headers.getFirst("RefreshToken")
+                    ?.takeIf { it.startsWith("Bearer ", ignoreCase = true) }
+                    ?.substringAfter("Bearer ")
+                    ?.trim()
+                    ?.takeIf { it.isNotEmpty() }
 
     fun validateAccessToken(token: String): Boolean =
         runCatching { Jwts.parserBuilder().setSigningKey(JWT_ACCESS_SECRET).build().parseClaimsJws(token)
