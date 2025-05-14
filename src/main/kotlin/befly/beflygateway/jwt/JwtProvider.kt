@@ -21,7 +21,7 @@ class JwtProvider {
                     ?.takeIf { it.isNotEmpty() }
 
     fun resolveRefreshToken(request:ServerHttpRequest): String? =
-            request.headers.getFirst("RefreshToken")
+            request.headers.getFirst("X-Refresh-Token")
                     ?.takeIf { it.startsWith("Bearer ", ignoreCase = true) }
                     ?.substringAfter("Bearer ")
                     ?.trim()
