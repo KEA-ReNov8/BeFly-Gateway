@@ -7,13 +7,13 @@ object PathWhitelistUtil {
     private val whiteListPatterns = listOf(
         "/oauth2/**",
         "/login/**",
-        "/auth/refresh",
+        "/auth/**",
         "/swagger-ui/**",
         "/v3/api-docs/**",
         "/api/docs",
         "/api/**",
         "/favicon.ico",
-        "/asdfasdf"
+        "/asdfasdf",
     )
 
     fun isWhitelisted(path: String): Boolean {
