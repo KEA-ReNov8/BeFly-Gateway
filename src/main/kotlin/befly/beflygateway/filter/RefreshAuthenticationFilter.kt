@@ -30,9 +30,8 @@ class RefreshAuthenticationFilter(
                 jwtProvider.resolveRefreshToken(exchange.request)
                     ?.takeIf { jwtProvider.validateRefreshToken(it) }
                     ?.let {
-                        val userId = jwtProvider.getUserIdFromRefreshToken(it)
                         val mutatedExchange = exchange.mutate()
-                            .request(exchange.request.mutate().header("X-USER-ID", userId.toString()).build())
+                            .request(exchange.request.mutate().header("X-Refresh-Token", it).build())
                             .build()
                         chain.filter(mutatedExchange)
                     }
