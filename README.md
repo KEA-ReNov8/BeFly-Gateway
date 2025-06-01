@@ -24,4 +24,5 @@
 | <img src="https://img.shields.io/badge/-Jira-0052CC?style=for-the-badge&logo=jira&logoColor=white"> | 일정 관리 |
 
 ## 🏛️ Architecture 🏛️
+![스크린샷 2025-06-01 오후 1 44 49](https://github.com/user-attachments/assets/0365aa19-9cd6-4ac5-a156-c8a4d98429c6)
 
