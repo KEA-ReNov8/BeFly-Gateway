@@ -43,7 +43,7 @@ class OAuth2SuccessHandler (
                         response
                             .takeIf { it.signUpStatus }
                             ?.run {
-                                val accessCookie = ResponseCookie.from("accessToken", "Bearer ${response.accessToken}")
+                                val accessCookie = ResponseCookie.from("accessToken", "${response.accessToken}")
                                         .httpOnly(true)
                                         .secure(true)
                                         .sameSite("Strict")
@@ -52,7 +52,7 @@ class OAuth2SuccessHandler (
                                         .path("/")
                                         .build()
 
-                                val refreshCookie = ResponseCookie.from("refreshToken", "Bearer ${response.refreshToken}!!")
+                                val refreshCookie = ResponseCookie.from("refreshToken", "${response.refreshToken}!!")
                                         .httpOnly(true)
                                         .secure(true)
                                         .sameSite("Strict")
