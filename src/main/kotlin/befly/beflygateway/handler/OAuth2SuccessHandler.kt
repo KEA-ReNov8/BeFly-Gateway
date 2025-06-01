@@ -52,7 +52,7 @@ class OAuth2SuccessHandler (
                                         .path("/")
                                         .build()
 
-                                val refreshCookie = ResponseCookie.from("refreshToken", "${response.refreshToken}!!")
+                                val refreshCookie = ResponseCookie.from("refreshToken", "${response.refreshToken}")
                                         .httpOnly(true)
                                         .secure(true)
                                         .sameSite("Strict")
