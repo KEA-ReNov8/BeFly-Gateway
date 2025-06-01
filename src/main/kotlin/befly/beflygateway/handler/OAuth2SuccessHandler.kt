@@ -22,7 +22,7 @@ class OAuth2SuccessHandler (
 ): ServerAuthenticationSuccessHandler {
     @Value("\${url.front}")
     lateinit var FRONT_END_URL: String
-
+    //
     override fun onAuthenticationSuccess(
         webFilterExchange: WebFilterExchange?,
         authentication: Authentication?
