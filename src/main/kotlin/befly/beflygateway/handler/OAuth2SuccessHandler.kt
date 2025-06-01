@@ -62,9 +62,8 @@ class OAuth2SuccessHandler (
                                         .build()
 
                                 webClient
-                                        .post()
+                                        .get()
                                         .uri("/auth/refresh")
-                                        .contentType(MediaType.APPLICATION_JSON)
                                         .accept(MediaType.ALL)
                                         .header("X-Refresh-Token", refreshToken)
                                         .retrieve()
