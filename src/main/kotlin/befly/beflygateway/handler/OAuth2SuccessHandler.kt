@@ -61,13 +61,6 @@ class OAuth2SuccessHandler (
                                         .path("/")
                                         .build()
 
-                                webClient
-                                        .get()
-                                        .uri("/auth/refresh")
-                                        .accept(MediaType.ALL)
-                                        .header("X-Refresh-Token", refreshToken)
-                                        .retrieve()
-
                                 exchange.response.addCookie(accessCookie)
                                 exchange.response.addCookie(refreshCookie)
                                 exchange.response.statusCode = HttpStatus.FOUND
