@@ -43,13 +43,14 @@ class OAuth2SuccessHandler (
                             .takeIf { it.signUpStatus }
                             ?.run {
                                 println(accessToken)
-                                exchange.response.headers.add("Authorization", "$accessToken") // Authorization 헤더 (일반적인 방식)
-                                exchange.response.headers.add("X-Refresh-Token", refreshToken) // 사용자 정의 헤더
+                                exchange.response.headers.add("Authorization", "Bearer $accessToken") // Authorization 헤더 (일반적인 방식)
+                                exchange.response.headers.add("X-Refresh-Token", "Bearer $refreshToken") // 사용자 정의 헤더
                                 exchange.response.statusCode = HttpStatus.FOUND
                                 exchange.response.headers.location = URI.create("$FRONT_END_URL/")
                             }
                             ?: run {//회원가입 페이지로 리다이렉트
                                 exchange.response.statusCode = HttpStatus.FOUND
+                                exchange.response.headers.add("clientId", userId) // Authorization 헤더 (일반적인 방식)
                                 exchange.response.headers.location = URI.create("$FRONT_END_URL/signup")
                             }
                         Mono.empty()
