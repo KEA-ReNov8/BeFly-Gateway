@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.net.URI
+import java.time.Duration
 
 @Component
 class OAuth2SuccessHandler (
@@ -42,14 +43,48 @@ class OAuth2SuccessHandler (
                         response
                             .takeIf { it.signUpStatus }
                             ?.run {
-                                println(accessToken)
-                                exchange.response.headers.add("Authorization", "$accessToken") // Authorization 헤더 (일반적인 방식)
-                                exchange.response.headers.add("X-Refresh-Token", refreshToken) // 사용자 정의 헤더
+                                val accessCookie = ResponseCookie.from("accessToken", "${response.accessToken}")
+                                        .httpOnly(true)
+                                        .secure(true)
+                                        .sameSite("Strict")
+                                        .domain(".befly.blog")
+                                        .maxAge(Duration.ofMinutes(15))
+                                        .path("/")
+                                        .build()
+
+                                val refreshCookie = ResponseCookie.from("refreshToken", "${response.refreshToken}!!")
+                                        .httpOnly(true)
+                                        .secure(true)
+                                        .sameSite("Strict")
+                                        .domain(".befly.blog")
+                                        .maxAge(Duration.ofDays(7))
+                                        .path("/")
+                                        .build()
+
+                                webClient
+                                        .get()
+                                        .uri("/auth/refresh")
+                                        .accept(MediaType.ALL)
+                                        .header("X-Refresh-Token", refreshToken)
+                                        .retrieve()
+
+                                exchange.response.addCookie(accessCookie)
+                                exchange.response.addCookie(refreshCookie)
                                 exchange.response.statusCode = HttpStatus.FOUND
                                 exchange.response.headers.location = URI.create("$FRONT_END_URL/")
                             }
                             ?: run {//회원가입 페이지로 리다이렉트
                                 exchange.response.statusCode = HttpStatus.FOUND
+                                val tempCookie = ResponseCookie.from("tempClientId", userId)
+                                        .httpOnly(false)
+                                        .secure(true)
+                                        .sameSite("Lax")
+                                        .domain(".befly.blog")
+                                        .maxAge(Duration.ofMinutes(10))
+                                        .path("/")
+                                        .build()
+
+                                exchange.response.addCookie(tempCookie)
                                 exchange.response.headers.location = URI.create("$FRONT_END_URL/signup")
                             }
                         Mono.empty()

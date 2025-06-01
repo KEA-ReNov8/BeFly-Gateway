@@ -14,16 +14,14 @@ class JwtProvider {
     private val JWT_REFRESH_SECRET: String? = null
 
     fun resolveAccessToken(request: ServerHttpRequest): String? =
-            request.headers.getFirst("Authorization")
-                    ?.takeIf { it.startsWith("Bearer ", ignoreCase = true) }
-                    ?.substringAfter("Bearer ")
+            request.cookies.getFirst("accessToken")
+                    ?.value
                     ?.trim()
                     ?.takeIf { it.isNotEmpty() }
 
     fun resolveRefreshToken(request:ServerHttpRequest): String? =
-            request.headers.getFirst("X-Refresh-Token")
-                    ?.takeIf { it.startsWith("Bearer ", ignoreCase = true) }
-                    ?.substringAfter("Bearer ")
+            request.cookies.getFirst("refreshToken")
+                    ?.value
                     ?.trim()
                     ?.takeIf { it.isNotEmpty() }
 

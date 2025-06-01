@@ -1,0 +1,66 @@
+name: 🚀Befly API Gateway CI
+
+on:
+  pull_request:
+    branches:
+      - production
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Gateway Repository
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+          token: ${{ secrets.PAT }}
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Git authentication for submodules
+        run: |
+          git config --global url."https://${{ secrets.PAT }}@github.com".insteadOf "https://github.com"
+          git submodule update --init --recursive
+
+      - name: Build with Gradle
+        run: |
+          chmod +x ./gradlew 
+          ./gradlew clean build -x test
+
+      - name: Get Git short SHA
+        id: vars
+        run: echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker Image
+        run: |
+          docker build -f Dockerfile.prod -t ${{ secrets.DOCKER_USERNAME }}/befly-gateway:${{ steps.vars.outputs.sha }} .
+
+      - name: Push to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/befly-gateway:${{ steps.vars.outputs.sha }}
+
+      - name: Checkout Manifests Repo
+        uses: actions/checkout@v3
+        with:
+          repository: KEA-ReNov8/Befly-Minifest
+          path: manifest-repo
+          token: ${{ secrets.PAT }}
+
+      - name: Bump image tag in deployment.yaml
+        run: |
+          cd manifest-repo
+          IMAGE=${{ secrets.DOCKER_USERNAME }}/befly-gateway:${{ steps.vars.outputs.sha }}
+          # apps/gateway-service/deployment.yaml 의 image 필드만 교체
+          yq eval -i ".spec.template.spec.containers[0].image = \"${IMAGE}\"" apps/gateway-service/deployment.yaml
+          git add apps/gateway-service/deployment.yaml
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git commit -m "ci: bump gateway-service image to ${{ steps.vars.outputs.sha }}"
+          git push origin main
