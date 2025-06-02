@@ -29,7 +29,7 @@ class SecurityConfig (
              exceptionHandling{ it.authenticationEntryPoint(CustomAuthenticationEntryPoint())}
              securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) // STATELESS
              authorizeExchange {
-                 it.pathMatchers("/oauth2/**", "/login/**", "/auth/refresh").permitAll()
+                 it.pathMatchers("/oauth2/**", "/login/**", "/auth/refresh", "/auth/signin","/auth/signup").permitAll()
                  it.pathMatchers("/swagger-ui/**", "/v3/api-docs/**",  "/favicon.ico", "/api/docs", "/api/**").permitAll()
                  it.anyExchange().authenticated()}
              oauth2Login{
