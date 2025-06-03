@@ -8,33 +8,53 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository
+
+import org.springframework.web.cors.CorsConfiguration
+import org.springframework.web.cors.reactive.CorsConfigurationSource
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableWebFluxSecurity
 class SecurityConfig (
-    private val oAuth2SuccessHandler: OAuth2SuccessHandler,
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter
-){
+        private val oAuth2SuccessHandler: OAuth2SuccessHandler,
+        private val jwtAuthenticationFilter: JwtAuthenticationFilter
+) {
 
     @Bean
     fun securityWebFilter(http: ServerHttpSecurity): SecurityWebFilterChain =
-         http.apply {
-             cors { it.disable() }
-             csrf { it.disable() }
-             formLogin { it.disable() }
-             httpBasic { it.disable() }
-             exceptionHandling{ it.authenticationEntryPoint(CustomAuthenticationEntryPoint())}
-             securityContextRepository(NoOpServerSecurityContextRepository.getInstance()) // STATELESS
-             authorizeExchange {
-                 it.pathMatchers("/oauth2/**", "/login/**", "/auth/refresh", "/auth/signin","/auth/signup").permitAll()
-                 it.pathMatchers("/swagger-ui/**", "/v3/api-docs/**",  "/favicon.ico", "/api/docs", "/api/**").permitAll()
-                 it.anyExchange().authenticated()}
-             oauth2Login{
-                 it.authenticationSuccessHandler(oAuth2SuccessHandler)
-             }
-             addFilterAt(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-         }.build()
+            http.apply {
+                cors { it.configurationSource(corsConfigurationSource()) }  // ✅ CORS 활성화
+                csrf { it.disable() }
+                formLogin { it.disable() }
+                httpBasic { it.disable() }
+                exceptionHandling { it.authenticationEntryPoint(CustomAuthenticationEntryPoint()) }
+                securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                authorizeExchange {
+                    it.pathMatchers(
+                            "/oauth2/**", "/login/**", "/auth/refresh", "/auth/signin", "/auth/signup",
+                            "/swagger-ui/**", "/v3/api-docs/**", "/favicon.ico", "/api/docs", "/api/**"
+                    ).permitAll()
+                    it.anyExchange().authenticated()
+                }
+                oauth2Login {
+                    it.authenticationSuccessHandler(oAuth2SuccessHandler)
+                }
+                addFilterAt(jwtAuthenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+            }.build()
+
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val config = CorsConfiguration().apply {
+            allowedOrigins = listOf("https://befly.blog", "http://localhost:3000") //도메인
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            allowedHeaders = listOf("*")
+            allowCredentials = true
+        }
+
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", config)
+        return source
+    }
 }
