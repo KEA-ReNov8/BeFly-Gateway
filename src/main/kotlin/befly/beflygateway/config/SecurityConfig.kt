@@ -47,7 +47,7 @@ class SecurityConfig (
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration().apply {
-            allowedOrigins = listOf("https://befly.blog", "http://localhost:3000") //도메인
+            allowedOrigins = listOf("https://befly.blog", "http://localhost:5173", "https://befly.blog:5173") //도메인
             allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
             allowCredentials = true
