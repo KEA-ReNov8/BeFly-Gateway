@@ -1,0 +1,56 @@
+spring:
+  application:
+    name: befly-gateway-prod
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: 732935614e46722be3537af517f72689
+            client-secret: 5teaK9HRw1Wn1B6oBNx0dkc88Cl5s90H
+            client-authentication-method: client_secret_post
+            redirect-uri: https://api.befly.blog/login/oauth2/code/kakao
+            authorization-grant-type: authorization_code
+            scope: profile_nickname, profile_image
+  data:
+    redis:
+      host: 34.47.101.253
+      port: 6379
+      username: befly
+      password: befly0443
+
+url:
+  front: https://befly.blog
+  back-user: http://user-service.backend.svc.cluster.local
+  back-community: http://community-service.backend.svc.cluster.local
+  back-consult: http://consult-service.backend.svc.cluster.local
+
+jwt:
+  access:
+    expire: 604800000
+    secret: dskafndnvkclxzvlkcjxvoqewir329014178923hrjedsbjfajdsnv1238491234jh123
+  refresh:
+    prefix: 'refreshToken:'
+    expire: 604800000
+    secret: asdfasdfweqriuweru19237489321749791283vbznxcvbwhenyourcasdfasdfasdfqewr
+logging:
+  level:
+    org.springframework.security: debug
+
+server:
+  port: 8000
+
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /api/docs
+    urls[0]:
+      name: user-service
+      url: /api/user-docs
+    urls[1]:
+      name: community-service
+      url: /api/community-docs
+    urls[2]:
+      name: consult-service
+      url: /api/consult-docs

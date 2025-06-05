@@ -37,13 +37,7 @@ class SecurityConfig (
                             "/oauth2/**", "/login/**", "/auth/refresh", "/auth/signin", "/auth/signup",
                             "/swagger-ui/**", "/v3/api-docs/**", "/favicon.ico", "/api/docs", "/api/**"
                     ).permitAll()
-                    it.pathMatchers(HttpMethod.GET, "/community/**")
-                    it.pathMatchers(HttpMethod.POST,"/community/solved/**").authenticated()
-                    it.pathMatchers(HttpMethod.PATCH,"/community/solved/**").authenticated()
-                    it.pathMatchers(HttpMethod.DELETE,"/community/solved/**").authenticated()
-                    it.pathMatchers(HttpMethod.POST,"/community/free/**").authenticated()
-                    it.pathMatchers(HttpMethod.PATCH,"/community/free/**").authenticated()
-                    it.pathMatchers(HttpMethod.DELETE,"/community/free/**").authenticated()
+                    it.pathMatchers(HttpMethod.GET, "/community/**").permitAll()
                     it.anyExchange().authenticated()
                 }
                 oauth2Login {
