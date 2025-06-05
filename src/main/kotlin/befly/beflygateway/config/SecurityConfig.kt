@@ -5,6 +5,7 @@ import befly.beflygateway.filter.JwtAuthenticationFilter
 import befly.beflygateway.handler.OAuth2SuccessHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder
 import org.springframework.security.config.web.server.ServerHttpSecurity
@@ -36,6 +37,13 @@ class SecurityConfig (
                             "/oauth2/**", "/login/**", "/auth/refresh", "/auth/signin", "/auth/signup",
                             "/swagger-ui/**", "/v3/api-docs/**", "/favicon.ico", "/api/docs", "/api/**"
                     ).permitAll()
+                    it.pathMatchers(HttpMethod.GET, "/community/**")
+                    it.pathMatchers(HttpMethod.POST,"/community/solved/**").authenticated()
+                    it.pathMatchers(HttpMethod.PATCH,"/community/solved/**").authenticated()
+                    it.pathMatchers(HttpMethod.DELETE,"/community/solved/**").authenticated()
+                    it.pathMatchers(HttpMethod.POST,"/community/free/**").authenticated()
+                    it.pathMatchers(HttpMethod.PATCH,"/community/free/**").authenticated()
+                    it.pathMatchers(HttpMethod.DELETE,"/community/free/**").authenticated()
                     it.anyExchange().authenticated()
                 }
                 oauth2Login {
@@ -48,7 +56,7 @@ class SecurityConfig (
     fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration().apply {
             allowedOrigins = listOf("https://befly.blog", "http://localhost:5173", "https://befly.blog:5173") //도메인
-            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")  // PATCH 추가
             allowedHeaders = listOf("*")
             allowCredentials = true
         }
