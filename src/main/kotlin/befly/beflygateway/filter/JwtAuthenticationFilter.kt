@@ -28,7 +28,7 @@ class JwtAuthenticationFilter(
 
 ): WebFilter {
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
-        PathWhitelistUtil.isWhitelisted(exchange.request.path.toString())
+        PathWhitelistUtil.isWhitelisted(exchange.request.method.toString(), exchange.request.path.toString())
             .takeIf { it }
             ?.let {chain.filter(exchange) }
             ?: run {
