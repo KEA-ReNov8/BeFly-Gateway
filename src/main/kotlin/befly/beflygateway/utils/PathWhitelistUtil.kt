@@ -7,8 +7,10 @@ object PathWhitelistUtil {
     private val whitelistRules: List<Pair<String, String>> = listOf(
             "ANY" to "/auth/**",
             "ANY" to "/login/**",
+            "ANY" to "/oauth2/**",
             "ANY" to "/swagger-ui/**",
             "ANY" to "/v3/api-docs/**",
+            "ANY" to "/api/**",
             "ANY" to "/favicon.ico", // 모든 method 허용할 경우
             "GET" to "/community/**",
     )
