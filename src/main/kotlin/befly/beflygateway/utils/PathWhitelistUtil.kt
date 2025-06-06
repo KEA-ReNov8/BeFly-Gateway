@@ -16,9 +16,15 @@ object PathWhitelistUtil {
     )
 
     fun isWhitelisted(method: String, path: String): Boolean {
-        return whitelistRules.any { (ruleMethod, pattern) ->
+        val isMatched = whitelistRules.any { (ruleMethod, pattern) ->
             (ruleMethod == "ANY" || ruleMethod.equals(method, ignoreCase = true)) &&
                     matcher.match(pattern, path)
         }
+
+        // 예외 경로 처리: GET /community/notification/** 는 제외
+        val isExcluded = method.equals("GET", ignoreCase = true) &&
+                matcher.match("/community/notification/**", path)
+
+        return isMatched && !isExcluded
     }
 }
