@@ -23,7 +23,8 @@ object PathWhitelistUtil {
 
         // 예외 경로 처리: GET /community/notification/** 는 제외
         val isExcluded = method.equals("GET", ignoreCase = true) &&
-                matcher.match("/community/notification/**", path)
+                matcher.match("/community/notification/**", path) &&
+                matcher.match("/community/**/empathy/check", path)
 
         return isMatched && !isExcluded
     }
