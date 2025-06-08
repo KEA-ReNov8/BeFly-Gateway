@@ -22,7 +22,7 @@ class OAuth2SuccessHandler (
 ): ServerAuthenticationSuccessHandler {
     @Value("\${url.front}")
     lateinit var FRONT_END_URL: String
-
+    //
     override fun onAuthenticationSuccess(
         webFilterExchange: WebFilterExchange?,
         authentication: Authentication?
@@ -52,7 +52,7 @@ class OAuth2SuccessHandler (
                                         .path("/")
                                         .build()
 
-                                val refreshCookie = ResponseCookie.from("refreshToken", "${response.refreshToken}!!")
+                                val refreshCookie = ResponseCookie.from("refreshToken", "${response.refreshToken}")
                                         .httpOnly(true)
                                         .secure(true)
                                         .sameSite("Strict")
@@ -60,13 +60,6 @@ class OAuth2SuccessHandler (
                                         .maxAge(Duration.ofDays(7))
                                         .path("/")
                                         .build()
-
-                                webClient
-                                        .get()
-                                        .uri("/auth/refresh")
-                                        .accept(MediaType.ALL)
-                                        .header("X-Refresh-Token", refreshToken)
-                                        .retrieve()
 
                                 exchange.response.addCookie(accessCookie)
                                 exchange.response.addCookie(refreshCookie)

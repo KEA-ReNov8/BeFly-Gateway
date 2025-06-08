@@ -28,7 +28,7 @@ class JwtAuthenticationFilter(
 
 ): WebFilter {
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> =
-        PathWhitelistUtil.isWhitelisted(exchange.request.path.toString())
+        PathWhitelistUtil.isWhitelisted(exchange.request.method.toString(), exchange.request.path.toString())
             .takeIf { it }
             ?.let {chain.filter(exchange) }
             ?: run {
@@ -38,21 +38,11 @@ class JwtAuthenticationFilter(
                         val userId = jwtProvider.getUserIdFromAccessToken(token)
                         val auth = getAuthentication(userId.toString())
                         val context = SecurityContextImpl(auth)
-                        return getAuthorizationToServer(userId)
-                            .flatMap { status ->
-                                if (status) {
-                                    val mutatedExchange = exchange.mutate()
-                                        .request(exchange.request.mutate().header("X-USER-ID", userId.toString()).build())
-                                        .build()
-                                    chain.filter(mutatedExchange)
-                                        .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)))
-                                }
-                                else {
-                                    val errorJson = ErrorCode.ACCESS_TOKEN_EXPIRED.toErrorResponse().toJsonBytes()
-                                    setErrorResponse(errorJson, exchange.response)
-                                }
-                            }
-
+                        val mutatedExchange = exchange.mutate()
+                                .request(exchange.request.mutate().header("X-USER-ID", userId.toString()).build())
+                                .build()
+                        chain.filter(mutatedExchange)
+                                .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(context)))
                     } ?: run {//access 만료 or 잘못됨
                     jwtProvider.resolveRefreshToken(exchange.request)
                         ?.takeIf { jwtProvider.validateRefreshToken(it) }
@@ -66,17 +56,6 @@ class JwtAuthenticationFilter(
                         }
                 }
             }
-
-    private fun getAuthorizationToServer(userId: Long): Mono<Boolean> {
-        return webClient
-            .get()
-            .uri("/auth/exist/user")
-            .accept(MediaType.ALL)
-            .header("X-USER-ID", userId.toString())
-            .retrieve()
-            .bodyToMono(AuthResponse::class.java)
-            .map { it.existStatus }
-    }
 
     private fun getAuthentication(userId: String):Authentication =
         UsernamePasswordAuthenticationToken(userId, "", emptyList())
