@@ -7,8 +7,8 @@ spring:
       client:
         registration:
           kakao:
-            client-id: 732935614e46722be3537af517f72689
-            client-secret: 5teaK9HRw1Wn1B6oBNx0dkc88Cl5s90H
+            client-id: 
+            client-secret: 
             client-authentication-method: client_secret_post
             redirect-uri: https://api.befly.blog/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
